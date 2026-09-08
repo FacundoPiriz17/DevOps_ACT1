@@ -22,7 +22,6 @@ def read_notes():
                 if line.strip()
             ]
 
-
 def write_note(note):
     ensure_file()
 

@@ -1,0 +1,13 @@
+.git
+.idea
+.venv
+venv
+__pycache__
+*.pyc
+
+k8s
+data
+notes.txt
+
+README.md
+.gitignore

@@ -1,15 +1,20 @@
+import os
+
 from flask import Flask, jsonify
 from notas import read_notes, write_note
 
 app = Flask(__name__)
 
+APP_TITLE = os.getenv("APP_TITLE", "API de notas")
+INSTANCE_NAME = os.getenv("INSTANCE_NAME", "local")
 @app.get("/")
 def index():
     return jsonify({
         "status": "ok",
-        "message": "API de notas activa"
+        "message": APP_TITLE + ", API de notas activa",
+        "instance": INSTANCE_NAME,
+        "version" : "V2"
     })
-
 
 @app.get("/add/<path:note>")
 def add_note(note):
@@ -33,11 +38,15 @@ def add_note(note):
 @app.get("/list")
 def list_notes():
     notes = read_notes()
+    notes = sorted(notes, key=str.lower)
 
     return jsonify({
         "total": len(notes),
-        "notes": notes
+        "notes": notes,
+        "message": "Notas ordenadas alfabéticamente",
+        "version": "v2"
     })
 
+
 if __name__ == "__main__":
-    app.run()
+    app.run(host="0.0.0.0", port=5000)
