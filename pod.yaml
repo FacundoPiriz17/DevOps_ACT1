@@ -1,0 +1,88 @@
+---
+# ConfigMap con 3 configuraciones
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: notas-config
+  namespace: devops
+data:
+  # Instancia 1
+  instance1-api-title: "API de notas - Instancia 1"
+  instance1-web-path: "/notas/v1"
+
+  # Instancia 2
+  instance2-api-title: "API de notas - Instancia 2"
+  instance2-web-path: "/notas/v2"
+
+  # Instancia 3
+  instance3-api-title: "API de notas - Instancia 3"
+  instance3-web-path: "/notas/v3"
+
+---
+# Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notas-deployment
+  namespace: devops
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: devopsnotes
+  template:
+    metadata:
+      labels:
+        app: devopsnotes
+    spec:
+      containers:
+        - image: devopsnotes:v2
+          name: devopsnotes
+          ports:
+            - containerPort: 8080
+          env:
+            # Instancia 1
+            - name: API_TITLE_1
+              valueFrom:
+                configMapKeyRef:
+                  name: notas-config
+                  key: instance1-api-title
+            - name: WEB_PATH_1
+              valueFrom:
+                configMapKeyRef:
+                  name: notas-config
+                  key: instance1-web-path
+
+            # Instancia 2
+            - name: API_TITLE_2
+              valueFrom:
+                configMapKeyRef:
+                  name: notas-config
+                  key: instance2-api-title
+            - name: WEB_PATH_2
+              valueFrom:
+                configMapKeyRef:
+                  name: notas-config
+                  key: instance2-web-path
+
+            # Instancia 3
+            - name: API_TITLE_3
+              valueFrom:
+                configMapKeyRef:
+                  name: notas-config
+                  key: instance3-api-title
+            - name: WEB_PATH_3
+              valueFrom:
+                configMapKeyRef:
+                  name: notas-config
+                  key: instance3-web-path
+
+          resources: {}
+
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always

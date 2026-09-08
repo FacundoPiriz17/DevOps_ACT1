@@ -1,8 +1,9 @@
+import os
 from pathlib import Path
 from threading import Lock
 
 
-NOTES_FILE = Path("/data/notes.txt")
+NOTES_FILE = Path(os.getenv("NOTES_FILE", "/data/notes.txt"))
 lock = Lock()
 
 
@@ -29,3 +30,26 @@ def write_note(note):
     with lock:
         with NOTES_FILE.open("a", encoding="utf-8") as file:
             file.write(note + "\n")
+
+
+def edit_note(index, note):
+    ensure_file()
+
+    with lock:
+        with NOTES_FILE.open("r", encoding="utf-8") as file:
+            notes = [
+                line.strip()
+                for line in file
+                if line.strip()
+            ]
+
+        if index < 0 or index >= len(notes):
+            return False
+
+        notes[index] = note
+
+        with NOTES_FILE.open("w", encoding="utf-8") as file:
+            for existing in notes:
+                file.write(existing + "\n")
+
+        return True

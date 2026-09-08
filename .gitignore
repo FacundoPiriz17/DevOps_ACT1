@@ -220,3 +220,4 @@ __marimo__/
 # Notas locales (persistencia fuera de Docker)
 data/
 notes.txt
+test-results.xml
