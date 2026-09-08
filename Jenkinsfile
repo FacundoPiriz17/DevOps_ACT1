@@ -1,8 +1,8 @@
 // Pipeline de CI para la API de notas.
 //
-// Requisitos en el nodo de Jenkins (agente Windows):
-//   - python en el PATH (3.10+), con el modulo venv disponible
-//   - docker CLI en el PATH y el daemon corriendo
+// Requisitos en el nodo de Jenkins (agente Linux):
+//   - python3 en el PATH (3.10+), con el modulo venv disponible
+//   - docker CLI en el PATH y acceso al daemon (docker.sock montado)
 //   - plugin "JUnit" instalado, para publicar el reporte de tests
 //
 // El pipeline corre los tests y, solo si pasan, buildea la imagen.
@@ -23,7 +23,7 @@ pipeline {
         // Los tests aislan el archivo de notas con una fixture, pero dejamos
         // NOTES_FILE dentro del workspace como red de seguridad: nunca se debe
         // escribir en la ruta de produccion (/data/notes.txt).
-        NOTES_FILE = "${env.WORKSPACE}\notes-ci.txt"
+        NOTES_FILE = "${env.WORKSPACE}/notes-ci.txt"
     }
 
     stages {
@@ -35,31 +35,31 @@ pipeline {
 
         stage('Setup') {
             steps {
-                bat """
-                    python -m venv %VENV%
-                    call %VENV%\\Scripts\\activate.bat
+                sh '''
+                    python3 -m venv "$VENV"
+                    . "$VENV/bin/activate"
                     python -m pip install --upgrade pip
                     pip install -r requirements-dev.txt
-                """
+                '''
             }
         }
 
         stage('Test') {
             steps {
-                bat """
-                    call %VENV%\\Scripts\\activate.bat
+                sh '''
+                    . "$VENV/bin/activate"
                     pytest -v --junitxml=test-results.xml
-                """
+                '''
             }
         }
 
         stage('Build imagen') {
             steps {
-                bat """
-                    docker build -t %IMAGE_NAME%:%IMAGE_TAG% .
-                    docker tag %IMAGE_NAME%:%IMAGE_TAG% %IMAGE_NAME%:latest
-                    docker images %IMAGE_NAME%
-                """
+                sh '''
+                    docker build -t "$IMAGE_NAME:$IMAGE_TAG" .
+                    docker tag "$IMAGE_NAME:$IMAGE_TAG" "$IMAGE_NAME:latest"
+                    docker images "$IMAGE_NAME"
+                '''
             }
         }
     }
