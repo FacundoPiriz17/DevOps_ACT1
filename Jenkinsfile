@@ -37,7 +37,7 @@ pipeline {
             steps {
                 bat """
                     python -m venv %VENV%
-                    call %VENV%\Scripts\activate.bat
+                    call %VENV%\\Scripts\\activate.bat
                     python -m pip install --upgrade pip
                     pip install -r requirements-dev.txt
                 """
@@ -47,7 +47,7 @@ pipeline {
         stage('Test') {
             steps {
                 bat """
-                    call %VENV%\Scripts\activate.bat
+                    call %VENV%\\Scripts\\activate.bat
                     pytest -v --junitxml=test-results.xml
                 """
             }
