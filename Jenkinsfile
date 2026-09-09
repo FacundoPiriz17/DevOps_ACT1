@@ -32,7 +32,7 @@ pipeline {
             steps {
                 sh '''
                     python3 -m venv "$VENV"
-                    . "$VENV/bin/activate"
+                    . "$VENV/Scripts/activate"
                     python -m pip install --upgrade pip
                     pip install -r requirements-dev.txt
                 '''
