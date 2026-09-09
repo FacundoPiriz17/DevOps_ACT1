@@ -27,15 +27,23 @@ pipeline {
             }
         }
 
+
+        stage('Setup') {
+            steps {
+                sh '''
+                    python3 -m venv "$VENV"
+                    . "$VENV/bin/activate"
+                    python -m pip install --upgrade pip
+                    pip install -r requirements-dev.txt
+                '''
+            }
+        }
+
         stage('Test') {
             steps {
                 sh '''
-                    docker run --rm \
-                        -v "$WORKSPACE":/app \
-                        -w /app \
-                        -e NOTES_FILE=/app/notes-ci.txt \
-                        python:3.12-slim \
-                        sh -c "pip install --upgrade pip && pip install -r requirements-dev.txt && pytest -v --junitxml=test-results.xml"
+                  . "$VENV/bin/activate"
+                pytest -v --junitxml=test-results.xml
                 '''
             }
         }
