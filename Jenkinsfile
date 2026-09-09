@@ -18,6 +18,8 @@ pipeline {
     environment {
         IMAGE_NAME = 'devopsnotes'
         IMAGE_TAG  = "${env.BUILD_NUMBER}"
+        VENV       = '.venv'
+        NOTES_FILE = "${env.WORKSPACE}/notes-ci.txt"
     }
 
     stages {
